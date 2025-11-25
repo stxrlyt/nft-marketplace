@@ -13,6 +13,9 @@ import {
 
 import NFTCard from "./components/NFTCard";
 
+import { connectWalletOnChain, mintNFT } from "./web3";
+
+
 // --- MOCK DATA ---
 const mockNFTs = [
   { id: 1, name: 'The Genesis', creator: '0x123...456', owner: '0x789...012', price: 1.5, isFeatured: true, onSale: true, image: 'https://placehold.co/400x400/10b981/ffffff?text=GENESIS' },
@@ -28,15 +31,11 @@ const mockTransactions = [
   { id: 'tx3', nftName: 'Cyberpunk City', amount: 0.8, buyer: '0x123...', date: '2024-10-24' },
 ];
 
-// Mock connected user address for demonstration purposes
-const MOCK_USER_ADDRESS = '0x1234...4567';
 
-// --- COMPONENTS ---
+// --------------------------------
+// Connect Wallet Button Component
+// --------------------------------
 
-/**
- * Connect Wallet Button Component (Simulating Wagmi Hooks)
- * In a real Wagmi app, this would use useAccount, useConnect, and useDisconnect.
- */
 const ConnectWalletButton = ({ isConnected, address, onConnect, onDisconnect }) => {
   const shortAddress = address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '';
 
@@ -68,7 +67,11 @@ const ConnectWalletButton = ({ isConnected, address, onConnect, onDisconnect }) 
   );
 };
 
-// --- PAGE VIEWS ---
+
+
+// --------------------------------
+// Pages
+// --------------------------------
 
 const IndexPage = () => {
   const featuredNFTs = mockNFTs.filter(nft => nft.isFeatured);
@@ -104,6 +107,7 @@ const IndexPage = () => {
           </table>
         </div>
       </section>
+
       {/* Featured NFTs */}
       <section>
         <h2 className="text-3xl font-extrabold text-white mb-6 flex items-center">
@@ -119,6 +123,7 @@ const IndexPage = () => {
   );
 };
 
+
 const AllNFTsPage = () => (
   <div className="space-y-8">
     <h2 className="text-3xl font-extrabold text-white flex items-center">
@@ -131,6 +136,8 @@ const AllNFTsPage = () => (
     </div>
   </div>
 );
+
+
 
 const DashboardPage = ({ isConnected, address }) => {
   if (!isConnected) {
@@ -172,6 +179,14 @@ const DashboardPage = ({ isConnected, address }) => {
   );
 };
 
+
+
+
+
+// --------------------------------
+// Create + Mint NFT Page (REAL LOGIC ADDED)
+// --------------------------------
+
 const CreateMintNFTPage = ({ isConnected }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -183,19 +198,34 @@ const CreateMintNFTPage = ({ isConnected }) => {
     return <NotConnectedMessage />;
   }
 
-  const handleSubmit = (e) => {
+  // REAL mint logic
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !price || !description || !file) {
+
+    if (!name || !description || !file) {
       setMessage('Please fill all fields and select a file.');
       return;
     }
-    // Mock Minting Logic
-    setMessage(`Successfully prepared NFT "${name}" for minting! Awaiting transaction confirmation... (Mocked)`);
-    // Reset form
-    setName('');
-    setPrice('');
-    setDescription('');
-    setFile(null);
+
+    try {
+      setMessage("Preparing metadata...");
+
+      // Real metadata/IPFS will be used after backend is added
+      const fakeTokenURI = `https://example.com/meta/${Date.now()}.json`;
+
+      setMessage("Minting NFT on Sepolia...");
+      const receipt = await mintNFT(fakeTokenURI);
+
+      setMessage(`NFT minted successfully! Tx: ${receipt.hash}`);
+
+      setName('');
+      setPrice('');
+      setDescription('');
+      setFile(null);
+    } catch (err) {
+      console.error(err);
+      setMessage("Mint failed: " + err.message);
+    }
   };
 
   return (
@@ -280,6 +310,12 @@ const CreateMintNFTPage = ({ isConnected }) => {
   );
 };
 
+
+
+// --------------------------------
+// Owned + Created Pages
+// --------------------------------
+
 const OwnedNFTsPage = ({ isConnected, address }) => {
   if (!isConnected) {
     return <NotConnectedMessage />;
@@ -302,6 +338,7 @@ const OwnedNFTsPage = ({ isConnected, address }) => {
     </div>
   );
 };
+
 
 const CreatedOnSalePage = ({ isConnected, address }) => {
   if (!isConnected) {
@@ -326,6 +363,8 @@ const CreatedOnSalePage = ({ isConnected, address }) => {
   );
 };
 
+
+
 const NotConnectedMessage = () => (
   <div className="text-center p-12 bg-gray-800 rounded-xl shadow-xl border border-red-500/30">
     <Wallet size={48} className="text-red-500 mx-auto mb-4" />
@@ -334,32 +373,35 @@ const NotConnectedMessage = () => (
   </div>
 );
 
-// --- MAIN APP COMPONENT ---
+
+
+
+// --------------------------------
+// MAIN APP
+// --------------------------------
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('index');
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState(null);
 
-  // Simulation of Wagmi connection/disconnection
-  const connectWallet = () => {
-    // In a real app, use Wagmi's useConnect and metamask/walletconnect logic here
-    console.log('Simulating Wallet Connection...');
-    setTimeout(() => {
+  // REAL wallet connect
+  const connectWallet = async () => {
+    try {
+      const userAddress = await connectWalletOnChain();
+      setAddress(userAddress);
       setIsConnected(true);
-      setAddress(MOCK_USER_ADDRESS);
-      console.log('Wallet Connected!');
-    }, 500);
+      console.log("Wallet connected:", userAddress);
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      alert("Please install MetaMask and switch to Sepolia network.");
+    }
   };
 
   const disconnectWallet = () => {
-    // In a real app, use Wagmi's useDisconnect here
-    console.log('Simulating Wallet Disconnection...');
-    setTimeout(() => {
-      setIsConnected(false);
-      setAddress(null);
-      console.log('Wallet Disconnected!');
-    }, 300);
+    setIsConnected(false);
+    setAddress(null);
+    console.log("Wallet disconnected.");
   };
 
   const navItems = useMemo(() => [
@@ -373,7 +415,6 @@ const App = () => {
 
 
   const renderPage = () => {
-    // Check if the page requires connection and the user is not connected
     const requiredAuth = navItems.find(item => item.id === currentPage)?.requiresAuth;
 
     if (requiredAuth && !isConnected) {
@@ -398,10 +439,10 @@ const App = () => {
     }
   };
 
+
   const Navigation = () => (
     <nav className="p-4 flex flex-col space-y-2">
       {navItems.map((item) => {
-        // Hide authenticated pages if not connected, but keep Create & Mint visible to prompt connection
         if (item.requiresAuth && !isConnected && item.id !== 'create-mint') return null;
 
         const isActive = currentPage === item.id;
