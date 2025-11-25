@@ -234,7 +234,9 @@ npm run build
 npm run clear
 ```
 
+## Context
 
+This project was developed for the course *Pengantar Blockchain* taught by Drs. Bambang Nurcahyo Prastowo, M.Sc. at Universitas Gadjah Mada.
 
 ## License
 
