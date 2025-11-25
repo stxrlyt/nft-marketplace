@@ -10,7 +10,7 @@ A blockchain-based marketplace enabling creators and collectors to mint, list, b
   **GitHub Link**: https://github.com/mash1rou
 
 - **Name**: Kireina Kalila Putri  
-  **NIM**: 22/492235/PA/21095
+  **NIM**: 22/492235/PA/21095  
   **University**: Universitas Gadjah Mada (UGM)  
   **GitHub Link**: https://github.com/stxrlyt
 
