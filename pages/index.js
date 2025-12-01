@@ -93,6 +93,21 @@ const features = [
 
 const faqs = [
   {
+    question: "Why does this project exist?",
+    answer:
+      "It was created by Computer Science students from Universitas Gadjah Mada as part of the Blockchain course final project.",
+  },
+  {
+    question: "Who are the members behind this project",
+    answer:
+      "The members behind this project are Raditya Maheswara, Kireina Kalila Putri, and Farhan Adiwidya Pradana.",
+  },
+  {
+    question: "Who is the lecturer that taught the Blockchain course?",
+    answer:
+      "The lecturer who taught our class is Drs. Bambang Nurcahyo Prastowo, M.Sc.",
+  },
+  {
     question: "What is an NFT?",
     answer:
       "NFTs (Non-Fungible Tokens) are unique digital assets that represent ownership of digital or physical items on the blockchain. Each NFT has a unique identifier that makes it one-of-a-kind and impossible to replicate.",
